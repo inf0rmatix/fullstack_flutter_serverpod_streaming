@@ -26,6 +26,14 @@ class EndpointExample extends _i1.EndpointRef {
       );
 }
 
+/// {@category Endpoint}
+class EndpointTextMessage extends _i1.EndpointRef {
+  EndpointTextMessage(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'textMessage';
+}
+
 class Client extends _i1.ServerpodClient {
   Client(
     String host, {
@@ -42,12 +50,18 @@ class Client extends _i1.ServerpodClient {
           connectionTimeout: connectionTimeout,
         ) {
     example = EndpointExample(this);
+    textMessage = EndpointTextMessage(this);
   }
 
   late final EndpointExample example;
 
+  late final EndpointTextMessage textMessage;
+
   @override
-  Map<String, _i1.EndpointRef> get endpointRefLookup => {'example': example};
+  Map<String, _i1.EndpointRef> get endpointRefLookup => {
+        'example': example,
+        'textMessage': textMessage,
+      };
 
   @override
   Map<String, _i1.ModuleEndpointCaller> get moduleLookup => {};

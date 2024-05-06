@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "fullstack_flutter_serverpod_streaming_client",
+            "cwd": "fullstack_flutter_serverpod_streaming_client",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "fullstack_flutter_serverpod_streaming_flutter",
+            "cwd": "fullstack_flutter_serverpod_streaming_flutter",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "fullstack_flutter_serverpod_streaming_flutter (profile mode)",
+            "cwd": "fullstack_flutter_serverpod_streaming_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "fullstack_flutter_serverpod_streaming_flutter (release mode)",
+            "cwd": "fullstack_flutter_serverpod_streaming_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "server",
+            "cwd": "fullstack_flutter_serverpod_streaming_server",
+            "request": "launch",
+            "type": "dart",
+            "program": "bin/main.dart",
+            "args": [
+                "--apply-migrations"
+            ],
+        }
+    ]
+}

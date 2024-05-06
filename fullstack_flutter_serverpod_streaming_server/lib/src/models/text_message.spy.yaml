@@ -1,0 +1,5 @@
+class: TextMessage
+fields:
+  author: String
+  text: String
+  timestamp: DateTime

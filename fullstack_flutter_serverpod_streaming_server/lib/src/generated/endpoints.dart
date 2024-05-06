@@ -10,6 +10,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../endpoints/example_endpoint.dart' as _i2;
+import '../endpoints/text_message_endpoint.dart' as _i3;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -20,7 +21,13 @@ class Endpoints extends _i1.EndpointDispatch {
           server,
           'example',
           null,
-        )
+        ),
+      'textMessage': _i3.TextMessageEndpoint()
+        ..initialize(
+          server,
+          'textMessage',
+          null,
+        ),
     };
     connectors['example'] = _i1.EndpointConnector(
       name: 'example',
@@ -45,6 +52,11 @@ class Endpoints extends _i1.EndpointDispatch {
           ),
         )
       },
+    );
+    connectors['textMessage'] = _i1.EndpointConnector(
+      name: 'textMessage',
+      endpoint: endpoints['textMessage']!,
+      methodConnectors: {},
     );
   }
 }
