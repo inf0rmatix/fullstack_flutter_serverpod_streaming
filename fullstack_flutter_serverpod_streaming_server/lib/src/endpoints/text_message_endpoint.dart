@@ -23,9 +23,11 @@ class TextMessageEndpoint extends Endpoint {
     SerializableEntity message,
   ) async {
     if (message is TextMessage) {
+      final messageWithId = await TextMessage.db.insertRow(session, message);
+
       session.messages.postMessage(
         channelName,
-        message,
+        messageWithId,
         // IMPORTANT: only set this flag, if your setup is using redis otherwise
         // this will throw an exception, since global message distribution
         // requires redis
@@ -39,5 +41,13 @@ class TextMessageEndpoint extends Endpoint {
     session.log('Stream closed');
 
     return super.streamClosed(session);
+  }
+
+  Future<List<TextMessage>> readAll(Session session) {
+    return TextMessage.db.find(
+      session,
+      limit: 1000,
+      orderBy: (row) => row.timestamp,
+    );
   }
 }

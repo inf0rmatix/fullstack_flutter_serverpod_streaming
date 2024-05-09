@@ -10,7 +10,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'protocol.dart' as _i3;
+import 'package:fullstack_flutter_serverpod_streaming_client/src/protocol/text_message.dart'
+    as _i3;
+import 'protocol.dart' as _i4;
 
 /// {@category Endpoint}
 class EndpointExample extends _i1.EndpointRef {
@@ -32,6 +34,13 @@ class EndpointTextMessage extends _i1.EndpointRef {
 
   @override
   String get name => 'textMessage';
+
+  _i2.Future<List<_i3.TextMessage>> readAll() =>
+      caller.callServerEndpoint<List<_i3.TextMessage>>(
+        'textMessage',
+        'readAll',
+        {},
+      );
 }
 
 class Client extends _i1.ServerpodClient {
@@ -43,7 +52,7 @@ class Client extends _i1.ServerpodClient {
     Duration? connectionTimeout,
   }) : super(
           host,
-          _i3.Protocol(),
+          _i4.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,

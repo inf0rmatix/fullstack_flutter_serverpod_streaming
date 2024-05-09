@@ -15,23 +15,35 @@ class TextChat extends StatefulWidget {
 class _TextChatState extends State<TextChat> {
   final dateFormat = DateFormat('dd.MM.yyyy HH:mm:ss');
 
-  // Sets up a singleton client object that can be used to talk to the server from
-  // anywhere in our app. The client is generated from your server code.
   // The client is set up to connect to a Serverpod running on a local server on
   // the default port. You will need to modify this to connect to staging or
   // production servers.
   final client = Client('http://$localhost:8080/')
     ..connectivityMonitor = FlutterConnectivityMonitor();
 
+  /// This should exist only once in your app and is here only for simplicity.
+  /// In a real app, you should make sure to make this a singleton and only close
+  /// the streaming connection, if you really want to disconnect ALL streams in your app.
+  late final StreamingConnectionHandler connectionHandler;
+
+  StreamingConnectionStatus connectionStatus =
+      StreamingConnectionStatus.disconnected;
+
   StreamSubscription? _subscription;
 
   var textMessages = <TextMessage>[];
 
+  var authorController = TextEditingController();
+
   var textController = TextEditingController();
+
+  final scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+
+    _readPreviousMessages();
 
     _initializeStream();
   }
@@ -49,48 +61,95 @@ class _TextChatState extends State<TextChat> {
       appBar: AppBar(
         title: const Text('Text Chat'),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
+          Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
+                  ),
+                  itemCount: textMessages.length,
+                  itemBuilder: (context, index) {
+                    final message = textMessages[index];
+
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.person),
+                        title: Text(message.text),
+                        subtitle: Text(
+                          '${message.author} - ${dateFormat.format(message.timestamp)}',
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-              itemCount: textMessages.length,
-              itemBuilder: (context, index) {
-                final message = textMessages[index];
-                return Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text(message.text),
-                    subtitle: Text(
-                      '${message.author} - ${dateFormat.format(message.timestamp)}',
-                    ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: TextField(
+                          controller: authorController,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(16),
+                            hintText: 'Username',
+                          ),
+                        ),
+                      ),
+                      const SizedBox.square(dimension: 16),
+                      Flexible(
+                        child: TextField(
+                          controller: textController,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(16),
+                            hintText: 'Enter message',
+                          ),
+                        ),
+                      ),
+                      const SizedBox.square(dimension: 16),
+                      IconButton(
+                        icon: const Icon(Icons.send),
+                        // Only allow sending messages if the connection is established
+                        onPressed: connectionStatus ==
+                                StreamingConnectionStatus.connected
+                            ? _sendMessage
+                            : null,
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-          SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: textController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(16),
-                      hintText: 'Enter message',
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Center(
+              child: Card(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    'Connection status: ${connectionStatus.name}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -102,8 +161,14 @@ class _TextChatState extends State<TextChat> {
       return;
     }
 
+    var author = authorController.text.trim();
+    if (author.isEmpty) {
+      authorController.clear();
+      author = 'Anonymous';
+    }
+
     final message = TextMessage(
-      author: 'Flutter',
+      author: author,
       text: text,
       timestamp: DateTime.now(),
     );
@@ -114,20 +179,50 @@ class _TextChatState extends State<TextChat> {
   }
 
   Future<void> _initializeStream() async {
-    await client.openStreamingConnection();
-
     _subscription = client.textMessage.stream.listen((message) {
       if (message is TextMessage) {
         setState(() {
-          textMessages.add(message);
+          final messages = [...textMessages, message];
+
+          messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+          textMessages = messages;
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeInOut,
+          );
         });
       }
     });
+
+    connectionHandler = StreamingConnectionHandler(
+      client: client,
+      listener: (state) {
+        setState(() => connectionStatus = state.status);
+      },
+    );
+
+    connectionHandler.connect();
   }
 
   Future<void> _closeStream() async {
     await _subscription?.cancel();
 
-    await client.closeStreamingConnection();
+    connectionHandler.close();
+    connectionHandler.dispose();
+  }
+
+  Future<void> _readPreviousMessages() async {
+    final messages = await client.textMessage.readAll();
+
+    setState(() => textMessages = [...messages, ...textMessages]);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
   }
 }

@@ -56,7 +56,18 @@ class Endpoints extends _i1.EndpointDispatch {
     connectors['textMessage'] = _i1.EndpointConnector(
       name: 'textMessage',
       endpoint: endpoints['textMessage']!,
-      methodConnectors: {},
+      methodConnectors: {
+        'readAll': _i1.MethodConnector(
+          name: 'readAll',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['textMessage'] as _i3.TextMessageEndpoint)
+                  .readAll(session),
+        )
+      },
     );
   }
 }

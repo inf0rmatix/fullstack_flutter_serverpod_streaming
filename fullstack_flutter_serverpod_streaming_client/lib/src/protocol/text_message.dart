@@ -12,12 +12,14 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
 abstract class TextMessage extends _i1.SerializableEntity {
   TextMessage._({
+    this.id,
     required this.author,
     required this.text,
     required this.timestamp,
   });
 
   factory TextMessage({
+    int? id,
     required String author,
     required String text,
     required DateTime timestamp,
@@ -28,6 +30,7 @@ abstract class TextMessage extends _i1.SerializableEntity {
     _i1.SerializationManager serializationManager,
   ) {
     return TextMessage(
+      id: serializationManager.deserialize<int?>(jsonSerialization['id']),
       author:
           serializationManager.deserialize<String>(jsonSerialization['author']),
       text: serializationManager.deserialize<String>(jsonSerialization['text']),
@@ -36,6 +39,11 @@ abstract class TextMessage extends _i1.SerializableEntity {
     );
   }
 
+  /// The database id, set if the object has been inserted into the
+  /// database or if it has been fetched from the database. Otherwise,
+  /// the id will be null.
+  int? id;
+
   String author;
 
   String text;
@@ -43,6 +51,7 @@ abstract class TextMessage extends _i1.SerializableEntity {
   DateTime timestamp;
 
   TextMessage copyWith({
+    int? id,
     String? author,
     String? text,
     DateTime? timestamp,
@@ -50,6 +59,7 @@ abstract class TextMessage extends _i1.SerializableEntity {
   @override
   Map<String, dynamic> toJson() {
     return {
+      if (id != null) 'id': id,
       'author': author,
       'text': text,
       'timestamp': timestamp.toJson(),
@@ -57,12 +67,16 @@ abstract class TextMessage extends _i1.SerializableEntity {
   }
 }
 
+class _Undefined {}
+
 class _TextMessageImpl extends TextMessage {
   _TextMessageImpl({
+    int? id,
     required String author,
     required String text,
     required DateTime timestamp,
   }) : super._(
+          id: id,
           author: author,
           text: text,
           timestamp: timestamp,
@@ -70,11 +84,13 @@ class _TextMessageImpl extends TextMessage {
 
   @override
   TextMessage copyWith({
+    Object? id = _Undefined,
     String? author,
     String? text,
     DateTime? timestamp,
   }) {
     return TextMessage(
+      id: id is int? ? id : this.id,
       author: author ?? this.author,
       text: text ?? this.text,
       timestamp: timestamp ?? this.timestamp,

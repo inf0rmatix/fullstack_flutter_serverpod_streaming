@@ -1,3 +1,4 @@
 example:
   - hello:
 textMessage:
+  - readAll:

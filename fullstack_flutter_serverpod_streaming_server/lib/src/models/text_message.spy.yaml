@@ -1,5 +1,9 @@
 class: TextMessage
+table: text_message
 fields:
   author: String
   text: String
   timestamp: DateTime
+indexes:
+  text_message_timestamp_index:
+    fields: timestamp
