@@ -155,13 +155,11 @@ class _TextChatState extends State<TextChat> {
   Future<void> _initializeStream() async {
     _subscription = client.textMessage.stream.listen((message) {
       if (message is TextMessage) {
-        setState(() {
-          final messages = [...textMessages, message];
+        final messages = [...textMessages, message];
 
-          messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-          textMessages = messages;
-        });
+        setState(() => textMessages = messages);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           scrollController.animateTo(
