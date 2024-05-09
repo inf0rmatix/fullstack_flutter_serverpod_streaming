@@ -191,9 +191,13 @@ class _TextChatState extends State<TextChat> {
   }
 
   Future<void> _readPreviousMessages() async {
-    final messages = await client.textMessage.readAll();
+    final previousMessages = await client.textMessage.readAll();
 
-    setState(() => textMessages = [...messages, ...textMessages]);
+    final messages = [...textMessages, ...previousMessages];
+
+    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    setState(() => textMessages = messages);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
