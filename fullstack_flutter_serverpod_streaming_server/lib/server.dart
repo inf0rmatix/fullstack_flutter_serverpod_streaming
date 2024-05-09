@@ -1,9 +1,8 @@
+import 'package:fullstack_flutter_serverpod_streaming_server/src/web/routes/root.dart';
 import 'package:serverpod/serverpod.dart';
 
-import 'package:fullstack_flutter_serverpod_streaming_server/src/web/routes/root.dart';
-
-import 'src/generated/protocol.dart';
 import 'src/generated/endpoints.dart';
+import 'src/generated/protocol.dart';
 
 // This is the starting point of your Serverpod server. In most cases, you will
 // only need to make additions to this file if you add future calls,  are

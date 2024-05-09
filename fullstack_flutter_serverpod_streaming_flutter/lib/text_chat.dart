@@ -59,97 +59,71 @@ class _TextChatState extends State<TextChat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Text Chat'),
+        title: Text('Connection status: ${connectionStatus.name}'),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 16,
-                  ),
-                  itemCount: textMessages.length,
-                  itemBuilder: (context, index) {
-                    final message = textMessages[index];
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+                horizontal: 16,
+              ),
+              itemCount: textMessages.length,
+              itemBuilder: (context, index) {
+                final message = textMessages[index];
 
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(message.text),
-                        subtitle: Text(
-                          '${message.author} - ${dateFormat.format(message.timestamp)}',
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        child: TextField(
-                          controller: authorController,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(16),
-                            hintText: 'Username',
-                          ),
-                        ),
-                      ),
-                      const SizedBox.square(dimension: 16),
-                      Flexible(
-                        child: TextField(
-                          controller: textController,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(16),
-                            hintText: 'Enter message',
-                          ),
-                        ),
-                      ),
-                      const SizedBox.square(dimension: 16),
-                      IconButton(
-                        icon: const Icon(Icons.send),
-                        // Only allow sending messages if the connection is established
-                        onPressed: connectionStatus ==
-                                StreamingConnectionStatus.connected
-                            ? _sendMessage
-                            : null,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-            child: Center(
-              child: Card(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Connection status: ${connectionStatus.name}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(message.text),
+                    subtitle: Text(
+                      '${message.author} - ${dateFormat.format(message.timestamp)}',
                     ),
                   ),
-                ),
+                );
+              },
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 200),
+                    child: TextField(
+                      controller: authorController,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(16),
+                        hintText: 'Username',
+                      ),
+                    ),
+                  ),
+                  const SizedBox.square(dimension: 16),
+                  Flexible(
+                    child: TextField(
+                      controller: textController,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(16),
+                        hintText: 'Enter message',
+                      ),
+                    ),
+                  ),
+                  const SizedBox.square(dimension: 16),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    // Only allow sending messages if the connection is established
+                    onPressed:
+                        connectionStatus == StreamingConnectionStatus.connected
+                            ? _sendMessage
+                            : null,
+                  ),
+                ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
